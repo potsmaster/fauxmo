@@ -35,7 +35,7 @@ import sys
 import time
 import urllib
 import uuid
-
+from hexdump import hexdump
 
 
 # This XML is the minimum needed to define one of our virtual switches
@@ -327,6 +327,7 @@ class upnp_broadcast_responder(object):
                     time.sleep(0.1)
                     device.respond_to_search(sender, 'urn:Belkin:device:**')
             else:
+                # dbg(hexdump(data))
                 pass
 
     #Receive network data
@@ -372,6 +373,32 @@ class rest_api_handler(object):
         r = requests.get(self.off_cmd)
         return r.status_code == 200
 
+import pygop
+pygop = pygop.pygop()
+
+class pygop_room_handler(object):
+    def __init__(self, name):
+        self.name = name
+
+    def on(self):
+        pygop.setRoomLevelByName(self.name, 1, 0)
+        return True
+
+    def off(self):
+        pygop.setRoomLevelByName(self.name, 0, 0)
+        return True
+
+class pygop_bulb_handler(object):
+    def __init__(self, name):
+        self.name = name
+
+    def on(self):
+        pygop.setBulbLevelByName(self.name, 1, 0)
+        return True
+
+    def off(self):
+        pygop.setBulbLevelByName(self.name, 0, 0)
+        return True
 
 # Each entry is a list with the following elements:
 #
@@ -380,14 +407,14 @@ class rest_api_handler(object):
 # port # (optional; may be omitted)
 
 # NOTE: As of 2015-08-17, the Echo appears to have a hard-coded limit of
-# 16 switches it can control. Only the first 16 elements of the FAUXMOS
-# list will be used.
+# 16 switches it can control.
 
-FAUXMOS = [
-    ['office lights', rest_api_handler('http://192.168.5.4/ha-api?cmd=on&a=office', 'http://192.168.5.4/ha-api?cmd=off&a=office')],
-    ['kitchen lights', rest_api_handler('http://192.168.5.4/ha-api?cmd=on&a=kitchen', 'http://192.168.5.4/ha-api?cmd=off&a=kitchen')],
-]
+deviceHandlers = []
+for deviceName in pygop.getDeviceNames():
+    dbg("Found device %s" % deviceName)
+    deviceHandlers.append([deviceName, pygop_bulb_handler(deviceName)])
 
+#deviceHandlers.append(['kitchen lights', rest_api_handler('http://192.168.5.4/ha-api?cmd=on&a=kitchen', 'http://192.168.5.4/ha-api?cmd=off&a=kitchen')])
 
 if len(sys.argv) > 1 and sys.argv[1] == '-d':
     DEBUG = True
@@ -404,7 +431,7 @@ u.init_socket()
 p.add(u)
 
 # Create our FauxMo virtual switch devices
-for one_faux in FAUXMOS:
+for one_faux in deviceHandlers:
     if len(one_faux) == 2:
         # a fixed port wasn't specified, use a dynamic one
         one_faux.append(0)

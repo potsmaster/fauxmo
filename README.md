@@ -1,3 +1,9 @@
+# fauxmo / pygop integration
+
+This fork of fauxmo incorporates the pygop package, automatically configuring
+an emulated wemo switch for each TCP Connected device found on the local
+network.
+
 # fauxmo
 **Emulated Belkin WeMo devices that work with the Amazon Echo**
 

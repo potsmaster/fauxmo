@@ -2,7 +2,10 @@
 
 This fork of fauxmo incorporates the pygop package, automatically configuring
 an emulated wemo switch for each TCP Connected device found on the local
-network.
+network.  The goal is to avoid having to maintain an external configuration
+file; just invoke this version fauxmo.py with no arguments and it will
+automatically enumerate the devices on the TCP Connected hub and publish
+them for your Alexa device to find.
 
 # fauxmo
 **Emulated Belkin WeMo devices that work with the Amazon Echo**

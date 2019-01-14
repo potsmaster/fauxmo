@@ -55,7 +55,7 @@ SETUP_XML = """<?xml version="1.0"?>
 """
 
 
-DEBUG = False
+DEBUG = True
 
 def dbg(msg):
     global DEBUG

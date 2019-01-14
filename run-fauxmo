@@ -1,0 +1,36 @@
+#!/bin/bash -xe
+
+thisscript=$(readlink -f $0)
+fauxmodir=$(dirname $thisscript)
+servicefile=/etc/systemd/system/fauxmo.service
+
+install_service()
+{
+    cat <<EOF >$servicefile
+[Unit]
+Description=fauxmo service
+After=network.target network-online.service
+
+[Service]
+ExecStart=$thisscript
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+}
+
+case $#-$1 in
+    1-install-service)
+        install_service
+        exit $?
+        ;;
+    0-)
+        cd $fauxmodir &&
+            exec python fauxmo.py
+        ;;
+    *)
+      echo >&2 $0: usage: $0 [install-service]
+esac
+exit 1

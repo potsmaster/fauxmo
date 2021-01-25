@@ -1,0 +1,11 @@
+[Unit]
+Description=fauxmo service
+After=network.target network-online.service
+
+[Service]
+ExecStart=/git/fauxmo/run-fauxmo
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
